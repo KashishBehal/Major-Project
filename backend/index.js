@@ -8,6 +8,8 @@ const authRoutes = require('./routes/authRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const classroomRoutes = require('./routes/classroomRoutes');
 const userRoutes= require('./routes/userRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const assignmentRoutes = require('./routes/assignmentRoutes')
 
 
 
@@ -30,6 +32,10 @@ app.use('/api/auth',authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/classrooms', classroomRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/assignment', assignmentRoutes);
+
+
 
 
 // Socket.IO setup
