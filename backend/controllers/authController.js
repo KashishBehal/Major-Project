@@ -33,7 +33,7 @@ const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: "Invalid credentials." });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user._id,email: user.email, role: user.role }, process.env.JWT_SECRET);
     res.json({ token });
   } catch (error) {
     res.status(500).json({ msg: error.message });
@@ -68,7 +68,7 @@ const forgotPassword = async (req, res) => {
   
       const mailOptions = {
         to: user.email,
-        from: 'process.env.EMAIL_USER', 
+        from: process.env.EMAIL_USER, 
         subject: 'Password Reset',
         text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.
   

@@ -2,17 +2,40 @@ const axios = require('axios');
 const Quiz = require('../models/Quiz');
 const StudentResponse = require('../models/StudentResponse');
 
+// Helper: Split paragraph into sentences
+const splitIntoSentences = (text) => {
+  return text.match(/[^\.!\?]+[\.!\?]+/g) || [text];
+};
+
 // Create quiz (teacher only)
 const createQuiz = async (req, res) => {
   const { topic, content, courseId } = req.body;
   const teacherId = req.user.id;
 
   try {
-    const response = await axios.post(
-      'https://api-inference.huggingface.co/models/valhalla/t5-base-qg-hl',
-      {
-        inputs: `generate question: ${content}`,
-      },
+    // Split into sentences and pick first 5
+    const sentences = splitIntoSentences(content).slice(0, 5);
+
+    // Generate question for each sentence
+    const questionPromises = sentences.map(async (sentence) => {
+      const response = await axios.post(
+        'https://api-inference.huggingface.co/models/iarfmoose/t5-base-question-generator',
+        { inputs: sentence },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.HUGGINGFACE_API_TOKEN}`,
+          },
+        }
+      );
+      return response.data[0];
+    });
+
+    const generatedQuestions = await Promise.all(questionPromises);
+
+    // Generate summary
+    const summaryResponse = await axios.post(
+      'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
+      { inputs: content },
       {
         headers: {
           Authorization: `Bearer ${process.env.HUGGINGFACE_API_TOKEN}`,
@@ -20,30 +43,32 @@ const createQuiz = async (req, res) => {
       }
     );
 
-    const questionText = response.data[0]?.generated_text || 'What is the topic about?';
+    const summary = summaryResponse.data[0]?.summary_text || 'Summary not available';
+
+    // Prepare questions array
+    const questions = generatedQuestions.map((q) => ({
+      question: q.question,
+      options: q.answers,
+      correctAnswer: q.answers[0], // assume first answer is correct
+    }));
 
     const newQuiz = new Quiz({
       topic,
       courseId,
       createdBy: teacherId,
-      questions: [
-        {
-          question: questionText,
-          options: ['Option A', 'Option B', 'Option C', 'Option D'], // can be updated later
-          correctAnswer: 'Option A',
-        },
-      ],
+      questions,
+      summary,
     });
 
     await newQuiz.save();
     res.status(201).json({ message: 'Quiz created successfully', quiz: newQuiz });
   } catch (error) {
-    console.error(error);
+    console.error(error.response?.data || error);
     res.status(500).json({ message: 'Failed to create quiz' });
   }
 };
 
-// Student view quizzes
+// Student views quizzes of a course
 const getQuizzesByCourse = async (req, res) => {
   const { courseId } = req.params;
 
@@ -54,7 +79,6 @@ const getQuizzesByCourse = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch quizzes' });
   }
 };
-
 
 // Student submits quiz answers
 const submitQuiz = async (req, res) => {
@@ -85,7 +109,7 @@ const submitQuiz = async (req, res) => {
       message: 'Quiz submitted successfully',
       score,
       total: quiz.questions.length,
-      summary: `You scored ${score} out of ${quiz.questions.length}`,
+      summary: quiz.summary,
     });
   } catch (error) {
     console.error(error);
@@ -93,10 +117,8 @@ const submitQuiz = async (req, res) => {
   }
 };
 
-
 module.exports = {
   createQuiz,
   getQuizzesByCourse,
-  submitQuiz
+  submitQuiz,
 };
-
