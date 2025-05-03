@@ -9,15 +9,21 @@ import Dashboard from "./pages/Dashboard";
 import Logout from "./pages/Logout";
 import { AuthProvider, useAuth } from "./context/Authcontext";
 import ResetPassword from './pages/ResetPassword';
+import CreateQuiz from "./pages/CreateQuiz";
+import Quizzes from "./pages/Quizzes";
+import AttemptQuiz from "./pages/AttemptQuiz";
+import Result from "./pages/Result";
 
 const PrivateRoute = ({ children, role }) => {
-  const { auth } = useAuth();
-  if (!auth.user) {
+  const { user, role: userRole } = useAuth();
+
+  if (!user) {
     return <Navigate to="/login" />;
   }
-  if (auth.role !== role) {
+  if (userRole !== role) {
     return <Navigate to="/" />;
   }
+
   return children;
 };
 
@@ -31,6 +37,10 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/create-quiz" element={<CreateQuiz />} />
+          <Route path="/view-quiz" element={<Quizzes />} />
+          <Route path="/attempt/:courseId/:quizId" element={<AttemptQuiz />} />
+          <Route path="/result" element={<Result />} />
 
           <Route
             path="/admin"

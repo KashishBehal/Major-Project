@@ -6,6 +6,7 @@ export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({
     user: null, 
     role: null,
+    token: null,
   });
 
   useEffect(() => {
@@ -18,6 +19,8 @@ export const AuthProvider = ({ children }) => {
         setAuth({
           user: payload.email,
           role: payload.role,
+          token,
+          
         });
       } catch (err) {
         console.error("Invalid token", err);
@@ -26,17 +29,19 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = ({ email, role }) => {
-    setAuth({ user: email, role });
+  const login = ({ token }) => {
+    localStorage.setItem("token", token);
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    setAuth({ user: payload.email, role: payload.role, token }); 
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    setAuth({ user: null, role: null });
+    setAuth({ user: null, role: null ,token:null});
   };
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider value={{ ...auth, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

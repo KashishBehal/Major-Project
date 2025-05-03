@@ -24,28 +24,24 @@ const Login = () => {
     try {
       setLoading(true);
       console.log("Trying login with: ", email, password);
+
       const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
       const token = res.data.token;
       console.log(res.data);
 
-      // Save token
       setError("");
-      localStorage.setItem("token", token);
+      login({ token }); // ✅ Updated to pass only token to match new AuthContext
 
-      // Decode token manually
       const payload = JSON.parse(atob(token.split(".")[1]));
       const role = payload.role || "student"; // fallback role
 
-      // Update AuthContext
-      login({ email: payload.email, role });
-
       // Navigate based on role
       if (role === "teacher") {
-        navigate("/teacher",{ replace: true });
+        navigate("/teacher", { replace: true });
       } else if (role === "admin") {
-        navigate("/admin",{ replace: true });
+        navigate("/admin", { replace: true });
       } else {
-        navigate("/student",{ replace: true });
+        navigate("/student", { replace: true });
       }
 
     } catch (error) {
@@ -140,4 +136,5 @@ const Login = () => {
 };
 
 export default Login;
+
 
