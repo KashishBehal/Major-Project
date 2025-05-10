@@ -13,7 +13,8 @@ import CreateQuiz from "./pages/CreateQuiz";
 import Quizzes from "./pages/Quizzes";
 import AttemptQuiz from "./pages/AttemptQuiz";
 import Result from "./pages/Result";
-
+import AssignmentUpload from "./pages/AssignmentUpload";
+import EmotionDetector from "./pages/EmotionDetector";
 const PrivateRoute = ({ children, role }) => {
   const { user, role: userRole } = useAuth();
 
@@ -41,7 +42,8 @@ function App() {
           <Route path="/view-quiz" element={<Quizzes />} />
           <Route path="/attempt/:courseId/:quizId" element={<AttemptQuiz />} />
           <Route path="/result" element={<Result />} />
-
+          <Route path="/assignment" element={<AssignmentUpload />} />
+          <Route path="/focus" element={<EmotionDetector />} />
           <Route
             path="/admin"
             element={

@@ -1,0 +1,36 @@
+
+.focus1{
+    color: #0c380a;
+    font-weight: bold;  
+    margin-top: 100px;
+    padding-top: 100px;
+    
+  }
+  .focus2{
+    color: #c7dbc6;
+    font-weight: bold;  
+   
+  }
+  .focus3{
+   
+    font-size: 100px;
+    
+    color: #d5e4d4;
+  }
+ 
+ .focus1{
+    height: 1000px;
+    width: 2300px;
+    color: #09400d;
+    font-weight: bold;  
+    font-size: 2.0em;
+   
+    width: 2300px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    margin: auto;
+    background-color:rgb(176, 181, 170);
+    display: flex;
+    flex-direction: column;
+  }
