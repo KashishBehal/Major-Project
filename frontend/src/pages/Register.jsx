@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import "../App.css";
 import axios from "../api/axios";  // Ensure your axios instance is properly configured
+import { useNavigate } from "react-router-dom";
+
 
 const Register = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "student" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false); // To show loading state
@@ -22,21 +25,35 @@ const Register = () => {
     setLoading(true);
     setError(""); // Clear previous error if any
 
-    try {
-      // Send registration request to backend
-      const response = await axios.post("/api/auth/register", { name, email, password, role });
+   try {
+  const response = await axios.post("/api/auth/register", { name, email, password, role });
 
-      // Set success message on successful registration
-      setSuccess("User registered successfully. Please log in.");
-      setForm({ name: "", email: "", password: "", role: "student" }); // Reset form fields
-    } catch (error) {
-      console.error(error);
-      // Set error message from response or default to generic message
-      setError(error.response?.data?.msg || "Registration failed. Please try again.");
-    } finally {
-      // Reset loading state after the request is completed
-      setLoading(false);
-    }
+  setSuccess("User registered successfully. Please log in.");
+  setForm({ name: "", email: "", password: "", role: "student" });
+
+  setTimeout(() => {
+    navigate("/login");
+  }, 1000); // Redirect after 1 second
+} catch (error) {
+  console.error(error);
+  setError(error.response?.data?.msg || "Registration failed. Please try again.");
+} finally {
+  setLoading(false);
+}try {
+  const response = await axios.post("/api/auth/register", { name, email, password, role });
+
+  setSuccess("User registered successfully. Please log in.");
+  setForm({ name: "", email: "", password: "", role: "student" });
+
+  setTimeout(() => {
+    navigate("/login");
+  }, 1000); // Redirect after 1 second
+} catch (error) {
+  console.error(error);
+  setError(error.response?.data?.msg || "Registration failed. Please try again.");
+} finally {
+  setLoading(false);
+}
   };
 
   return (
